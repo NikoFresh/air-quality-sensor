@@ -5,7 +5,9 @@ from modules.sgp30 import SGP30Sensor
 from modules.scd40 import SCD40Sensor
 from modules.pms5003 import PMS5003Sensor
 # from modules.mq7 import MQ7Sensor
+
 from modules.oled import OLEDDisplay
+from modules.mqtt import connect_wifi, MQTTManager
 
 i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=10000)
 
@@ -15,6 +17,9 @@ sgp30 = SGP30Sensor(i2c)
 scd = SCD40Sensor(i2c)
 pms = PMS5003Sensor(uart_id=1, tx=17, rx=16)
 # mq7 = MQ7Sensor(pin=34, r0=1402.069)
+
+connect_wifi()
+mqtt = MQTTManager()
 
 lastUpdateTime = time.ticks_ms()
 interval = 10000
@@ -39,5 +44,6 @@ while True:
             print("Error")
 
         oled.update_data(currentData)
+        mqtt.publish(currentData)
         print(currentData)
         currentData = {}
