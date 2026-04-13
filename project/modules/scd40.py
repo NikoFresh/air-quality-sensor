@@ -7,8 +7,10 @@ class SCD40Sensor:
         self.scd.start_periodic_measurement()
 
     def read(self):
+        if not self.scd.data_ready:
+            return {}
         return {
-            'co2': self.scd.CO2
+            'co2': self.scd.CO2,
         }
 
     def set_pressure(self, pressure):
