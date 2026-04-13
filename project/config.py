@@ -1,5 +1,5 @@
-WIFI_SSID = "."
-WIFI_PASSWORD = "puntopunto"
+WIFI_SSID = "Convitto Tomadini"
+WIFI_PASSWORD = None
 
 MQTT_CLIENT_ID = "esp32_air_quality_nf"
 MQTT_TOPIC_PREFIX = "nfsensors/air"
