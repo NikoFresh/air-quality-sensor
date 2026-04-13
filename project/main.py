@@ -1,5 +1,6 @@
 from machine import Pin, I2C
 import time
+import network
 from modules.bme280 import BMESensor
 from modules.sgp30 import SGP30Sensor
 from modules.scd40 import SCD40Sensor
@@ -16,7 +17,7 @@ bme = BMESensor(i2c)
 sgp = SGP30Sensor(i2c)
 scd = SCD40Sensor(i2c)
 pms = PMS5003Sensor(uart_id=1, tx=17, rx=16)
-mq7 = MQ7Sensor(pin=34, r0=1402.069)
+# mq7 = MQ7Sensor(pin=34, r0=1402.069)
 
 connect_wifi()
 mqtt = MQTTManager()
@@ -42,6 +43,15 @@ last_publish = now
 data = {}
 while True:
     now = time.ticks_ms()
+
+    wlan = network.WLAN(network.STA_IF)
+    wifi_connected = wlan.isconnected()
+
+    if wifi_connected:
+        mqtt_ok = mqtt.check_connection()
+    else:
+        mqtt.clients = []
+        mqtt_ok = False
 
     # SGP30
     if time.ticks_diff(now, last_sgp30) >= SGP30_INTERVAL:
@@ -75,12 +85,12 @@ while True:
             print("[BME280] errore:", e)
 
     # MQ7
-    if time.ticks_diff(now, last_mq7) >= MQ7_INTERVAL:
-        last_mq7 = now
-        try:
-            data.update(mq7.read())
-        except Exception as e:
-            print("[MQ7] errore:", e)
+    # if time.ticks_diff(now, last_mq7) >= MQ7_INTERVAL:
+    #     last_mq7 = now
+    #     try:
+    #         data.update(mq7.read())
+    #     except Exception as e:
+    #         print("[MQ7] errore:", e)
 
     # PMS5003
     if time.ticks_diff(now, last_pms) >= PMS_INTERVAL:
@@ -93,13 +103,16 @@ while True:
     # OLED
     if time.ticks_diff(now, last_oled) >= OLED_INTERVAL:
         last_oled = now
+        wlan = network.WLAN(network.STA_IF)
+        data['wifi_ok'] = wlan.isconnected()
+        data['mqtt_ok'] = len(mqtt.clients) > 0
         if data:
             oled.update_data(data)
 
     # MQTT
     if time.ticks_diff(now, last_publish) >= PUBLISH_INTERVAL:
         last_publish = now
-        if data:
+        if data and wifi_connected and mqtt_ok:
             mqtt.publish(data)
             print(data)
 

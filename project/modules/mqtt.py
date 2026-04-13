@@ -71,3 +71,10 @@ class MQTTManager:
                 item["client"].disconnect()
             except:
                 pass
+
+    def check_connection(self):
+        if not self.clients:
+            print("Reconnecting to MQTT...")
+            self._init_clients()
+            return len(self.clients) > 0
+        return True
