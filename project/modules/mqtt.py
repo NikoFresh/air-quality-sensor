@@ -9,6 +9,9 @@ def connect_wifi():
     wlan.active(True)
     if wlan.isconnected():
         return True
+
+    wlan.disconnect()
+    time.sleep(0.5)
     print(f"Connecting to WiFi {config.WIFI_SSID}...")
     wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
     for _ in range(20):
