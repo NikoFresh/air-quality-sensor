@@ -1,5 +1,6 @@
 import lib.ssd1306 as ssd1306
 
+
 class OLEDDisplay:
     def __init__(self, i2c, width=128, height=64):
         self.display = ssd1306.SSD1306_I2C(width, height, i2c)

@@ -58,9 +58,8 @@ while True:
         last_sgp30 = now
         try:
             sgp_data = sgp.read()
-            # estimated eCO2 TVOC ≠ CO2 from SCD40
-            if 'co2' in sgp_data:
-                sgp_data['eco2'] = sgp_data.pop('co2')
+            if 'eco2' in sgp_data:
+                sgp_data['eco2'] = sgp_data.pop('eco2')
             data.update(sgp_data)
         except Exception as e:
             print("[SGP30] errore:", e)
