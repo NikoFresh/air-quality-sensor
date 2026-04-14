@@ -13,13 +13,28 @@ from modules.mqtt import connect_wifi, MQTTManager
 i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=10000)
 
 oled = OLEDDisplay(i2c)
+boot_status = []
 bme = BMESensor(i2c)
+boot_status.append(("BME280", bme is not None))
+oled.boot_add_sensor(boot_status)
+
 sgp = SGP30Sensor(i2c)
+boot_status.append(("SGP30", sgp is not None))
+oled.boot_add_sensor(boot_status)
+
 scd = SCD40Sensor(i2c)
+boot_status.append(("SCD40", scd is not None))
+oled.boot_add_sensor(boot_status)
+
 pms = PMS5003Sensor(uart_id=1, tx=17, rx=16)
+boot_status.append(("PMS5003", pms is not None))
+oled.boot_add_sensor(boot_status)
+
 # mq7 = MQ7Sensor(pin=34, r0=1402.069)
 
-connect_wifi()
+wifi_status = connect_wifi()
+boot_status.append(("WIFI", wifi_status))
+oled.boot_add_sensor(boot_status)
 mqtt = MQTTManager()
 
 # Intervals (ms)
@@ -40,7 +55,9 @@ last_pms = now
 last_oled = now
 last_publish = now
 
-data = {}
+data = {'tvoc': '---', 'co2': '---', 'pm1_0_atm': '---', 'pm2_5_atm': '---', 'pm10_atm': '---', 'wifi_ok': wifi_status,
+        'mqtt_ok': len(mqtt.clients) > 0}
+oled.update_data(data)
 while True:
     now = time.ticks_ms()
 

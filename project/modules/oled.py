@@ -4,14 +4,27 @@ import lib.ssd1306 as ssd1306
 class OLEDDisplay:
     def __init__(self, i2c, width=128, height=64):
         self.display = ssd1306.SSD1306_I2C(width, height, i2c)
-        # Rotate screen
-        self.display.write_cmd(0xA0)  # SEG remap
-        self.display.write_cmd(0xC0)  # COM output direction
-
-        self.display.fill(0)
-        self.display.text("Avvio sensori...", 0, 28)
-        self.display.show()
+        self.display.write_cmd(0xA0)
+        self.display.write_cmd(0xC0)
+        self._boot_screen()
         print('OLED display initialized.')
+
+    def _boot_screen(self):
+        self.display.fill(0)
+        self.display.text("Caricamento...", 0, 0)
+        self.display.hline(0, 10, 128, 1)
+        self.display.show()
+
+    def boot_add_sensor(self, sensors_so_far):
+        self.display.fill(0)
+        self.display.text("Caricamento...", 0, 0)
+        self.display.hline(0, 10, 128, 1)
+        y = 16
+        for lbl, status in sensors_so_far:
+            icon = "OK " if status else "ERR"
+            self.display.text(f"{lbl:<7} {icon}", 0, y)
+            y += 9
+        self.display.show()
 
     def update_data(self, data):
         self.display.fill(0)
@@ -20,7 +33,8 @@ class OLEDDisplay:
         wifi_status = "OK" if data.get('wifi_ok', False) else "NO"
         mqtt_status = "OK" if data.get('mqtt_ok', False) else "NO"
         self.display.text(f"WIFI:{wifi_status} MQTT:{mqtt_status}", 0, y_pos)
-        y_pos += 10
+        self.display.hline(0, 10, 128, 1)
+        y_pos += 15
 
         if 'co2' in data:
             self.display.text(f"CO2:   {data['co2']} ppm", 0, y_pos)
