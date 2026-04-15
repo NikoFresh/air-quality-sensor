@@ -14,26 +14,40 @@ i2c = I2C(0, scl=Pin(22), sda=Pin(21), freq=10000)
 
 oled = OLEDDisplay(i2c)
 boot_status = []
+# BME280
+boot_status.append(("BME280", None))
+oled.boot_add_sensor(boot_status)
 bme = BMESensor(i2c)
-boot_status.append(("BME280", bme is not None))
+boot_status[-1] = ("BME280", bme is not None)
 oled.boot_add_sensor(boot_status)
 
+# SGP30
+boot_status.append(("SGP30", None))
+oled.boot_add_sensor(boot_status)
 sgp = SGP30Sensor(i2c)
-boot_status.append(("SGP30", sgp is not None))
+boot_status[-1] = ("SGP30", sgp is not None)
 oled.boot_add_sensor(boot_status)
 
+# SCD40
+boot_status.append(("SCD40", None))
+oled.boot_add_sensor(boot_status)
 scd = SCD40Sensor(i2c)
-boot_status.append(("SCD40", scd is not None))
+boot_status[-1] = ("SCD40", scd is not None)
 oled.boot_add_sensor(boot_status)
 
+# PMS5003
+boot_status.append(("PMS5003", None))
+oled.boot_add_sensor(boot_status)
 pms = PMS5003Sensor(uart_id=1, tx=17, rx=16)
-boot_status.append(("PMS5003", pms is not None))
+boot_status[-1] = ("PMS5003", pms is not None)
 oled.boot_add_sensor(boot_status)
 
 # mq7 = MQ7Sensor(pin=34, r0=1402.069)
 
+boot_status.append(("WIFI", None))
+oled.boot_add_sensor(boot_status)
 wifi_status = connect_wifi()
-boot_status.append(("WIFI", wifi_status))
+boot_status[-1] = ("WIFI", wifi_status)
 oled.boot_add_sensor(boot_status)
 mqtt = MQTTManager()
 

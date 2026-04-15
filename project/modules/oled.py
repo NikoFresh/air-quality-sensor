@@ -21,7 +21,12 @@ class OLEDDisplay:
         self.display.hline(0, 10, 128, 1)
         y = 16
         for lbl, status in sensors_so_far:
-            icon = "OK " if status else "ERR"
+            if status is None:
+                icon = "..."
+            elif status:
+                icon = "OK "
+            else:
+                icon = "ERR"
             self.display.text(f"{lbl:<7} {icon}", 0, y)
             y += 9
         self.display.show()
