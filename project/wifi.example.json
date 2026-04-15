@@ -1,0 +1,14 @@
+[
+    {
+        "ssid": "First network",
+        "password": "password"
+    },
+    {
+        "ssid": "Open network",
+        "password": null
+    },
+    {
+        "ssid": "fallback",
+        "password": "psw"
+    }
+]
