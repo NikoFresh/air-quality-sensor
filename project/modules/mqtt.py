@@ -12,14 +12,29 @@ def connect_wifi():
 
     wlan.disconnect()
     time.sleep(0.5)
-    print(f"Connecting to WiFi {config.WIFI_SSID}...")
-    wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
-    for _ in range(20):
-        if wlan.isconnected():
-            print(f"WiFi connected: {wlan.ifconfig()[0]}")
-            return True
-        time.sleep(1)
-    print("WiFi connection failed")
+
+    for net in config.WIFI_NETWORKS:
+        ssid = net["ssid"]
+        password = net["password"]
+
+        print(f"Trying to connect to WiFi: {ssid}...")
+
+        if password:
+            wlan.connect(ssid, password)
+        else:
+            wlan.connect(ssid)
+
+        for _ in range(15):
+            if wlan.isconnected():
+                print(f"WiFi connected to {ssid}: {wlan.ifconfig()[0]}")
+                return True
+            time.sleep(1)
+
+        print(f"Could not connect to {ssid}. Trying another networkk...")
+        wlan.disconnect()
+        time.sleep(0.5)
+
+    print("ERRORE: cannot connect to WiFi")
     return False
 
 
