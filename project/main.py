@@ -84,17 +84,6 @@ while True:
         mqtt.clients = []
         mqtt_ok = False
 
-    # SGP30
-    if time.ticks_diff(now, last_sgp30) >= SGP30_INTERVAL:
-        last_sgp30 = now
-        try:
-            sgp_data = sgp.read()
-            if 'eco2' in sgp_data:
-                sgp_data['eco2'] = sgp_data.pop('eco2')
-            data.update(sgp_data)
-        except Exception as e:
-            print("[SGP30] errore:", e)
-
     # SCD40
     if time.ticks_diff(now, last_scd40) >= SCD40_INTERVAL:
         last_scd40 = now
@@ -113,6 +102,24 @@ while True:
             data.update(bme.read())
         except Exception as e:
             print("[BME280] errore:", e)
+
+    # SGP30
+    if time.ticks_diff(now, last_sgp30) >= SGP30_INTERVAL:
+        last_sgp30 = now
+        try:
+            temp = data.get('temperature')
+            hum = data.get('humidity')
+            if temp and hum:
+                try:
+                    sgp.set_humidity(float(temp), float(hum))
+                except Exception:
+                    pass
+            sgp_data = sgp.read()
+            if 'eco2' in sgp_data:
+                sgp_data['eco2'] = sgp_data.pop('eco2')
+            data.update(sgp_data)
+        except Exception as e:
+            print("[SGP30] errore:", e)
 
     # MQ7
     # if time.ticks_diff(now, last_mq7) >= MQ7_INTERVAL:
