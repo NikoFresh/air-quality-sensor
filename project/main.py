@@ -110,10 +110,7 @@ while True:
             temp = data.get('temperature')
             hum = data.get('humidity')
             if temp and hum:
-                try:
-                    sgp.set_humidity(float(temp), float(hum))
-                except Exception:
-                    pass
+                sgp.set_humidity(temp, hum)
             sgp_data = sgp.read()
             if 'eco2' in sgp_data:
                 sgp_data['eco2'] = sgp_data.pop('eco2')

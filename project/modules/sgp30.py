@@ -1,30 +1,26 @@
-import time
-
-import lib.adafruit_sgp30 as sgp30
+import lib.uSGP30 as uSGP30
 
 
 class SGP30Sensor:
     def __init__(self, i2c):
-        self.sgp30 = sgp30.Adafruit_SGP30(i2c)
-        self.sgp30.iaq_init()
+        self.sgp30 = uSGP30.SGP30(i2c)
         print('Initializing SGP30...')
-        # time.sleep(15)
-        # print('SGP30 sensor initialized.')
+        self.sgp30.iaq_init()
 
-    def set_humidity(self, temperature, humidity):
-        try:
-            # g/m³ = (RH/100) * 6.112 * exp(17.67*T/(T+243.5)) * 216.7/(T+273.15)
-            import math
-            abs_hum = (humidity / 100.0) * 6.112 * math.exp(
-                17.67 * temperature / (temperature + 243.5)
-            ) * 216.7 / (temperature + 273.15)
-            abs_hum_fp = int(abs_hum) << 8 | int((abs_hum % 1) * 256)
-            self.sgp30.set_iaq_humidity(abs_hum_fp)
-        except Exception as e:
-            print("SGP30: set_humidity:", e)
+    def _parse_number(self, val):
+        if isinstance(val, str):
+            clean_str = "".join([c for c in val if c.isdigit() or c in '.-'])
+            return float(clean_str) if clean_str else 0.0
+        return float(val)
+
+    def set_humidity(self, temp, hum):
+        clean_temp = self._parse_number(temp)
+        clean_hum = self._parse_number(hum)
+        a_hum = uSGP30.convert_r_to_a_humidity(clean_temp, clean_hum)
+        self.sgp30.set_absolute_humidity(a_hum)
 
     def read(self):
-        co2_eq, tvoc = self.sgp30.iaq_measure()
+        co2_eq, tvoc = self.sgp30.measure_iaq()
         return {
             'eco2': co2_eq,
             'tvoc': tvoc,
