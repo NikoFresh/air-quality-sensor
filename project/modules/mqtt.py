@@ -68,10 +68,10 @@ class MQTTManager:
         for item in self.clients:
             try:
                 for key, value in data.items():
-                    if value is None:
+                    if value is None or value == '---':
                         continue
                     topic = f"{config.MQTT_TOPIC_PREFIX}/{key}"
-                    item["client"].publish(topic, str(value))
+                    item["client"].publish(topic, str(value), retain=True)
             except Exception as e:
                 print(f"MQTT publish failed ({item['name']}): {e}")
                 # try to reconnect
